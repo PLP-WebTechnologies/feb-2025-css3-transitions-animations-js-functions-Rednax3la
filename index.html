@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SS3 Features Demo</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --transition-time: 0.3s;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            transition: background-color 0.5s, color 0.5s;
+            padding: 20px;
+        }
+
+        .theme-toggle {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform var(--transition-time);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .item-list {
+            margin-top: 20px;
+        }
+
+        .item {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dark-theme {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        .dark-theme .item {
+            background-color: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">Toggle Dark Mode</button>
+    
+    <div class="container">
+        <h1>User Preferences Demo</h1>
+        
+        <form id="itemForm">
+            <input type="text" id="itemInput" placeholder="Enter a new item">
+            <button type="submit" class="theme-toggle">Add Item</button>
+        </form>
+
+        <div class="item-list" id="itemList"></div>
+    </div>
+
+    <script>
+        // Initialize preferences
+        const initializePreferences = () => {
+            // Load theme preference
+            const savedTheme = localStorage.getItem('themePreference');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
+
+            // Load saved items
+            const savedItems = JSON.parse(localStorage.getItem('userItems')) || [];
+            savedItems.forEach(item => addItemToList(item));
+        };
+
+        // Theme toggle handler
+        const handleThemeToggle = () => {
+            document.body.classList.toggle('dark-theme');
+            const isDarkMode = document.body.classList.contains('dark-theme');
+            localStorage.setItem('themePreference', isDarkMode ? 'dark' : 'light');
+            
+            // Animation effect
+            document.documentElement.style.transition = 'all 0.5s ease';
+        };
+
+        // Add item with animation
+        const addItemToList = (text) => {
+            const item = document.createElement('div');
+            item.className = 'item';
+            item.textContent = text;
+            
+            // Trigger animation
+            item.style.animation = 'fadeIn 0.5s ease-out';
+            document.getElementById('itemList').appendChild(item);
+        };
+
+        // Form submission handler
+        const handleFormSubmit = (e) => {
+            e.preventDefault();
+            const input = document.getElementById('itemInput');
+            if (input.value.trim()) {
+                addItemToList(input.value);
+                
+                // Save to localStorage
+                const items = Array.from(document.querySelectorAll('.item'))
+                            .map(item => item.textContent);
+                localStorage.setItem('userItems', JSON.stringify(items));
+                
+                input.value = '';
+            }
+        };
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', initializePreferences);
+        document.getElementById('themeToggle').addEventListener('click', handleThemeToggle);
+        document.getElementById('itemForm').addEventListener('submit', handleFormSubmit);
+
+        // Bonus: Keyboard shortcut to clear storage
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'c') {
+                localStorage.clear();
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
